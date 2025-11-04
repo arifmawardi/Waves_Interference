@@ -45,7 +45,7 @@
 </head>
 <body class="bg-gray-900 text-gray-100 flex flex-col items-center justify-center min-h-screen p-4">
 
-    <h1 class="text-3xl md:text-4xl font-bold mb-6 text-teal-300">Wavess Interference</h1>
+    <h1 class="text-3xl md:text-4xl font-bold mb-6 text-teal-300">Wave Interference</h1>
 
     <!-- Canvas for the wave visualization --><canvas id="waveCanvas" class="bg-gray-800 rounded-lg shadow-xl w-full max-w-4xl h-64 md:h-96 mb-6"></canvas>
 
@@ -83,8 +83,6 @@
             const phaseSlider = document.getElementById('phase');
 
             // Get readout elements
-            // const speedReadout = document.getElementById('speedReadout'); // Removed
-            // const wavelengthReadout = document.getElementById('wavelengthReadout'); // Removed
             const phaseReadout = document.getElementById('phaseReadout');
 
             // --- Corrected Physics Parameters ---
@@ -92,7 +90,7 @@
             const propSpeed = 2; // (pixels/frame) - Tuned for good visual range
             
             // Wave parameters controlled by user
-            const amplitude = 60; // Fixed amplitude (REDUCED from 80 to prevent clipping)
+            let amplitude; // Will be set dynamically in resizeCanvas()
             const frequency = 0.035; // Fixed frequency (omega)
             let phase = parseFloat(phaseSlider.value); // Phase difference in radians
             
@@ -111,9 +109,6 @@
 
             // Update readouts
             function updateReadouts() {
-                // let wavelength = (2 * Math.PI) / k; // Removed
-                // speedReadout.textContent = `${propSpeed} px/frame`; // Removed
-                // wavelengthReadout.textContent = `${wavelength.toFixed(1)} px`; // Removed
                 let phaseInPi = phase / Math.PI;
                 phaseReadout.textContent = `${phaseInPi.toFixed(2)} π rad`;
             }
@@ -129,6 +124,16 @@
                 // Set canvas size to its CSS-defined size
                 canvas.width = canvas.clientWidth;
                 canvas.height = canvas.clientHeight;
+                
+                // Dynamically calculate amplitude based on canvas height to prevent clipping
+                const yCenter = canvas.height / 2;
+                const padding = 20; // 20 pixels of padding from the top/bottom edge for labels/beads
+                
+                // Max resultant amplitude is 2 * amplitude. We want 2 * amplitude <= yCenter - padding.
+                amplitude = (yCenter - padding) / 2;
+                
+                // Ensure amplitude is a reasonable value if canvas is tiny
+                if (amplitude < 10) amplitude = 10;
             }
 
             // Function to draw the waves
@@ -150,10 +155,10 @@
                 // --- End Equilibrium Line ---
 
                 // --- Draw Amplitude Lines ---
-                const A = amplitude; // 80
-                const A_prime = 2 * A; // Changed from dynamic calculation to fixed 2*A
+                const A = amplitude; // This will now be the dynamic amplitude
+                const A_prime = 2 * A; // This will also be dynamic
                 const x_label_pos = 10; // X position for the labels "A" and "2A"
-                const line_end_x = canvas.width; // X position for the end of the amplitude lines (was 75)
+                const line_end_x = canvas.width; // X position for the end of the amplitude lines
 
                 ctx.globalAlpha = 0.8; // Make lines slightly transparent
                 ctx.setLineDash([2, 2]);
@@ -172,8 +177,8 @@
                 
                 // Add label "A"
                 ctx.fillStyle = '#3b82f6';
-                ctx.fillText('A', x_label_pos, yCenter - A - 5); // FIX: Corrected syntax and label
-                ctx.fillText('-A', x_label_pos, yCenter + A + 15); // FIX: Corrected syntax and label
+                ctx.fillText('A', x_label_pos, yCenter - A - 5); 
+                ctx.fillText('-A', x_label_pos, yCenter + A + 15);
 
 
                 // 2. Draw Lines for A' (Resultant Amplitude) - Top and Bottom
@@ -331,17 +336,16 @@
             }
 
             // Initial setup
-            resizeCanvas();
+            resizeCanvas(); // This now sets the dynamic amplitude
             updateReadouts();
             
             // Start the animation
             animate();
 
             // Resize canvas on window resize
-            window.addEventListener('resize', resizeCanvas);
+            window.addEventListener('resize', resizeCanvas); // Also updates amplitude on resize
         };
     </script>
 </body>
 </html>
-
 
