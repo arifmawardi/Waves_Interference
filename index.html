@@ -92,7 +92,7 @@
             const propSpeed = 2; // (pixels/frame) - Tuned for good visual range
             
             // Wave parameters controlled by user
-            const amplitude = 80; // Fixed amplitude
+            const amplitude = 60; // Fixed amplitude (REDUCED from 80 to prevent clipping)
             const frequency = 0.035; // Fixed frequency (omega)
             let phase = parseFloat(phaseSlider.value); // Phase difference in radians
             
@@ -343,4 +343,5 @@
     </script>
 </body>
 </html>
+
 
